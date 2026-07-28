@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page { margin: 0; }
+        body {
+            margin: 0; padding: 0;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #ffffff;
+        }
+        .card {
+            width: 226.77pt;
+            height: 368.50pt;
+            background: linear-gradient(180deg, #0a1f18 0%, #04120c 100%);
+            background-color: #0a1f18;
+            box-sizing: border-box;
+            padding: 18px 16px;
+            position: relative;
+            page-break-after: always;
+        }
+        .card.back { page-break-after: avoid; }
+
+        .header { text-align: center; margin-bottom: 14px; }
+        .logo-img { width: 40px; height: 40px; object-fit: contain; margin-bottom: 4px; }
+        .uni-name { font-size: 7.5px; font-weight: bold; color: #ffffff; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.4px; }
+        .brand { color: #4CAF82; font-size: 7px; font-weight: bold; margin-top: 2px; letter-spacing: 1px; }
+
+        .photo-wrap {
+            width: 150px; height: 170px;
+            margin: 10px auto 12px auto;
+            border-radius: 10px;
+            border: 2px solid #4CAF82;
+            overflow: hidden;
+            background: rgba(255,255,255,0.06);
+            text-align: center;
+        }
+        .photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+        .name { text-align: center; font-size: 15px; font-weight: bold; color: #ffffff; margin-top: 4px; }
+        .position { text-align: center; font-size: 9.5px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+        .divider { width: 70%; margin: 8px auto; border-top: 1px solid rgba(76,175,130,0.4); }
+
+        .department { text-align: center; font-size: 8px; color: #7fd6ab; text-transform: uppercase; letter-spacing: 0.6px; font-weight: bold; }
+        .code { text-align: center; font-size: 11px; color: #ffffff; font-family: monospace; letter-spacing: 1px; margin-top: 6px; }
+
+        .footer-strip {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 8px; background: #4CAF82;
+        }
+
+        /* Back page */
+        .back .qr-title { text-align: center; font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-top: 40px; }
+        .back .qr-box {
+            width: 150px; height: 150px;
+            background: #ffffff;
+            border-radius: 10px;
+            margin: 16px auto 0 auto;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .back .qr-box img { width: 100%; height: 100%; }
+        .back .note { text-align: center; font-size: 7px; color: rgba(255,255,255,0.35); margin-top: 14px; padding: 0 20px; }
+    </style>
+</head>
+<body>
+
+    {{-- ============ FRONT ============ --}}
+    <div class="card front">
+        <div class="header">
+            @if($logoData)
+                <img src="{{ $logoData }}" class="logo-img">
+            @endif
+            <div class="uni-name">Pangasinan State University</div>
+            <div class="uni-name">Alaminos City Campus</div>
+            <div class="brand">SmartGate ACC</div>
+        </div>
+
+        <div class="photo-wrap">
+            @if($photoData)
+                <img src="{{ $photoData }}">
+            @endif
+        </div>
+
+        <div class="name">{{ $employee->last_name }}, {{ $employee->first_name }}</div>
+        <div class="position">{{ $employee->position }}</div>
+
+        <div class="divider"></div>
+
+        <div class="department">{{ $employee->department }}</div>
+        <div class="code">{{ $employee->employee_code }}</div>
+
+        <div class="footer-strip"></div>
+    </div>
+
+    {{-- ============ BACK ============ --}}
+    <div class="card back">
+        <div class="header">
+            @if($logoData)
+                <img src="{{ $logoData }}" class="logo-img">
+            @endif
+            <div class="uni-name">Pangasinan State University</div>
+            <div class="uni-name">Alaminos City Campus</div>
+            <div class="brand">SmartGate ACC</div>
+        </div>
+
+        <div class="qr-title">Scan for Attendance</div>
+        <div class="qr-box">
+            @if($qrSource)
+                <img src="{{ $qrSource }}">
+            @endif
+        </div>
+
+        <p class="note">
+            This ID is property of PSU-Alaminos City Campus. If found, please return to the ICT Management Office.
+        </p>
+
+        <div class="footer-strip"></div>
+    </div>
+
+</body>
+</html>
