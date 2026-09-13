@@ -60,8 +60,8 @@ class DashboardController extends Controller
 
             // Top 5 late employees this month
             'late_employees'       => AttendanceLog::selectRaw('
-                                          employee_id,
-                                          COUNT(*) as late_count
+                                            employee_id,
+                                            COUNT(*) as late_count
                                         ')
                                         ->where('log_type', 'Morning In')
                                         ->whereMonth('scanned_at', $today->month)

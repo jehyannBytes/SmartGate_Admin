@@ -9,26 +9,26 @@
 
     {{-- Summary Cards --}}
     <div class="grid grid-cols-3 gap-4">
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-            <p class="text-white/50 text-xs uppercase tracking-wider mb-2">Total Devices</p>
-            <p class="text-3xl font-bold text-white">{{ $total }}</p>
+        <div class="bg-white border border-[#1e2a5e]/30 rounded-2xl p-5 shadow-sm">
+            <p class="text-slate-500 text-xs uppercase tracking-wider mb-2">Total Devices</p>
+            <p class="text-3xl font-bold text-slate-900">{{ $total }}</p>
         </div>
-        <div class="bg-[#4CAF82]/5 border border-[#4CAF82]/20 rounded-2xl p-5">
-            <p class="text-[#4CAF82] text-xs uppercase tracking-wider mb-2">Online</p>
-            <p class="text-3xl font-bold text-white">{{ $online }}</p>
-            <p class="text-white/30 text-xs mt-1">Active in last 10 mins</p>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm">
+            <p class="text-emerald-600 text-xs uppercase tracking-wider mb-2">Online</p>
+            <p class="text-3xl font-bold text-slate-900">{{ $online }}</p>
+            <p class="text-slate-400 text-xs mt-1">Active in last 10 mins</p>
         </div>
-        <div class="bg-red-500/5 border border-red-500/20 rounded-2xl p-5">
-            <p class="text-red-400 text-xs uppercase tracking-wider mb-2">Offline</p>
-            <p class="text-3xl font-bold text-white">{{ $offline }}</p>
-            <p class="text-white/30 text-xs mt-1">No recent activity</p>
+        <div class="bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm">
+            <p class="text-red-600 text-xs uppercase tracking-wider mb-2">Offline</p>
+            <p class="text-3xl font-bold text-slate-900">{{ $offline }}</p>
+            <p class="text-slate-400 text-xs mt-1">No recent activity</p>
         </div>
     </div>
 
     {{-- Add Button --}}
     <div class="flex justify-end">
         <a href="{{ route('devices.create') }}"
-           class="bg-[#4CAF82] hover:bg-[#3d9e71] text-white px-4 py-2.5
+           class="bg-[#1e2a5e] hover:bg-[#141d47] text-white px-4 py-2.5
                   rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
@@ -40,17 +40,17 @@
     {{-- Device Cards --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         @forelse($devices as $device)
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-5
-                    {{ $device->is_online ? 'border-l-4 border-l-[#4CAF82]' : '' }}
-                    hover:bg-white/8 transition-colors">
+        <div class="bg-white border border-[#1e2a5e]/30 rounded-2xl p-5 shadow-sm
+                    {{ $device->is_online ? 'border-l-4 border-l-emerald-500' : '' }}
+                    hover:bg-slate-50 transition-colors">
             <div class="flex items-start gap-4">
 
                 {{-- Device Icon + Status --}}
                 <div class="relative shrink-0">
                     <div class="w-12 h-12 rounded-xl
-                                {{ $device->is_online ? 'bg-[#4CAF82]/15' : 'bg-white/5' }}
+                                {{ $device->is_online ? 'bg-emerald-50' : 'bg-slate-100' }}
                                 flex items-center justify-center">
-                        <svg class="w-6 h-6 {{ $device->is_online ? 'text-[#4CAF82]' : 'text-white/30' }}"
+                        <svg class="w-6 h-6 {{ $device->is_online ? 'text-emerald-600' : 'text-slate-400' }}"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0
@@ -59,8 +59,8 @@
                         </svg>
                     </div>
                     {{-- Online/Offline dot --}}
-                    <span class="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-[#0a0a0a]
-                                {{ $device->is_online ? 'bg-[#4CAF82]' : ($device->is_active ? 'bg-red-500' : 'bg-white/20') }}">
+                    <span class="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white
+                                {{ $device->is_online ? 'bg-emerald-500' : ($device->is_active ? 'bg-red-500' : 'bg-slate-300') }}">
                     </span>
                 </div>
 
@@ -68,21 +68,21 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-start justify-between gap-2">
                         <div>
-                            <p class="text-white font-semibold text-sm">{{ $device->device_name }}</p>
-                            <p class="text-white/40 text-xs font-mono mt-0.5">{{ $device->device_mac }}</p>
+                            <p class="text-slate-900 font-semibold text-sm">{{ $device->device_name }}</p>
+                            <p class="text-slate-400 text-xs font-mono mt-0.5">{{ $device->device_mac }}</p>
                         </div>
                         {{-- Type Badge --}}
                         <span class="text-xs px-2.5 py-1 rounded-full border shrink-0
                                     {{ $device->device_type === 'dedicated'
-                                        ? 'bg-blue-500/15 text-blue-400 border-blue-500/20'
-                                        : 'bg-purple-500/15 text-purple-400 border-purple-500/20' }}">
+                                        ? 'bg-blue-50 text-blue-600 border-blue-200'
+                                        : 'bg-purple-50 text-purple-600 border-purple-200' }}">
                             {{ ucfirst($device->device_type) }}
                         </span>
                     </div>
 
                     <div class="flex items-center gap-4 mt-3">
                         {{-- Location --}}
-                        <div class="flex items-center gap-1.5 text-white/40 text-xs">
+                        <div class="flex items-center gap-1.5 text-slate-400 text-xs">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -93,9 +93,9 @@
 
                         {{-- Last Seen --}}
                         <div class="flex items-center gap-1.5 text-xs
-                                    {{ $device->is_online ? 'text-[#4CAF82]' : 'text-white/30' }}">
+                                    {{ $device->is_online ? 'text-emerald-600' : 'text-slate-400' }}">
                             <span class="w-1.5 h-1.5 rounded-full
-                                        {{ $device->is_online ? 'bg-[#4CAF82]' : 'bg-white/20' }}">
+                                        {{ $device->is_online ? 'bg-emerald-500' : 'bg-slate-300' }}">
                             </span>
                             @if($device->last_seen_at)
                                 {{ $device->is_online ? 'Online' : 'Last seen ' . \Carbon\Carbon::parse($device->last_seen_at)->diffForHumans() }}
@@ -108,9 +108,9 @@
             </div>
 
             {{-- Actions --}}
-            <div class="flex items-center gap-2 mt-4 pt-4 border-t border-white/5">
+            <div class="flex items-center gap-2 mt-4 pt-4 border-t border-slate-200">
                 <a href="{{ route('devices.show', $device) }}"
-                   class="text-white/40 hover:text-[#4CAF82] text-xs font-medium transition-colors flex items-center gap-1.5">
+                   class="text-slate-400 hover:text-emerald-600 text-xs font-medium transition-colors flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36
@@ -122,7 +122,7 @@
                     View Logs
                 </a>
                 <a href="{{ route('devices.edit', $device) }}"
-                   class="text-white/40 hover:text-blue-400 text-xs font-medium transition-colors flex items-center gap-1.5 ml-3">
+                   class="text-slate-400 hover:text-blue-600 text-xs font-medium transition-colors flex items-center gap-1.5 ml-3">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652
@@ -137,7 +137,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit"
-                                class="text-white/30 hover:text-red-400 text-xs font-medium transition-colors flex items-center gap-1.5">
+                                class="text-slate-300 hover:text-red-500 text-xs font-medium transition-colors flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                       d="M18.364 18.364A9 9 0 005.636 5.636m12.728
@@ -147,15 +147,15 @@
                         </button>
                     </form>
                 @else
-                    <span class="ml-auto text-xs text-white/20">Inactive</span>
+                    <span class="ml-auto text-xs text-slate-300">Inactive</span>
                 @endif
             </div>
         </div>
         @empty
-        <div class="col-span-2 bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
-            <p class="text-white/30 text-sm">No devices registered yet.</p>
+        <div class="col-span-2 bg-white border border-[#1e2a5e]/30 rounded-2xl p-12 text-center shadow-sm">
+            <p class="text-slate-400 text-sm">No devices registered yet.</p>
             <a href="{{ route('devices.create') }}"
-               class="inline-block mt-4 text-[#4CAF82] text-sm hover:underline">
+               class="inline-block mt-4 text-emerald-600 text-sm hover:underline">
                 Register your first device &rarr;
             </a>
         </div>

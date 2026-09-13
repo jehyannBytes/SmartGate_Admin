@@ -8,100 +8,115 @@
 
   {{-- Summary Cards --}}
   <div class="grid grid-cols-3 gap-4">
-    <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-2xl p-5">
-      <p class="text-yellow-400 text-xs uppercase tracking-wider mb-2">Pending</p>
-      <p class="text-3xl font-bold text-white">{{ $pending }}</p>
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
+      <p class="text-amber-600 text-xs uppercase tracking-wider mb-2">Pending</p>
+      <p class="text-3xl font-bold text-slate-900">{{ $pending }}</p>
     </div>
-    <div class="bg-[#4CAF82]/5 border border-[#4CAF82]/20 rounded-2xl p-5">
-      <p class="text-[#4CAF82] text-xs uppercase tracking-wider mb-2">Approved</p>
-      <p class="text-3xl font-bold text-white">{{ $approved }}</p>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm">
+      <p class="text-emerald-600 text-xs uppercase tracking-wider mb-2">Approved</p>
+      <p class="text-3xl font-bold text-slate-900">{{ $approved }}</p>
     </div>
-    <div class="bg-red-500/5 border border-red-500/20 rounded-2xl p-5">
-      <p class="text-red-400 text-xs uppercase tracking-wider mb-2">Rejected</p>
-      <p class="text-3xl font-bold text-white">{{ $rejected }}</p>
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm">
+      <p class="text-red-600 text-xs uppercase tracking-wider mb-2">Rejected</p>
+      <p class="text-3xl font-bold text-slate-900">{{ $rejected }}</p>
     </div>
   </div>
 
-  {{-- Filters --}}
-  <form method="GET" action="{{ route('att-records.index') }}"
-        class="flex flex-wrap items-center gap-3">
-    <div class="flex rounded-xl overflow-hidden border border-white/10">
-      @foreach(['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected', '' => 'All'] as $val => $label)
-        <button type="submit" name="status" value="{{ $val }}"
-                class="px-4 py-2 text-sm font-medium transition-colors
-                       {{ request('status', 'pending') === $val
-                          ? 'bg-[#4CAF82] text-white'
-                          : 'bg-white/5 text-white/50 hover:text-white hover:bg-white/10' }}">
-          {{ $label }}
-        </button>
-      @endforeach
-    </div>
-    <input type="text" name="search" value="{{ request('search') }}"
-           placeholder="Search employee..."
-           class="bg-white/5 border border-white/10 rounded-xl px-4 py-2
-                  text-white placeholder-white/30 text-sm w-56
-                  focus:outline-none focus:ring-2 focus:ring-[#4CAF82]"/>
-    <button type="submit"
-            class="bg-white/10 hover:bg-white/15 text-white px-4 py-2
-                   rounded-xl text-sm font-medium transition-colors">
-      Filter
-    </button>
-  </form>
+  {{-- Action & Filter Bar --}}
+  <div class="flex items-center justify-between gap-4 py-2">
+    <!-- Search & Filter Controls -->
+    <form method="GET" action="{{ route('att-records.index') }}" class="flex items-center gap-3">
+      <div class="flex bg-slate-100 p-1 rounded-xl">
+        <a href="{{ route('att-records.index', ['status' => 'pending']) }}" 
+           class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors {{ request('status', 'pending') === 'pending' ? 'bg-[#1e2a5e] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+          Pending
+        </a>
+        <a href="{{ route('att-records.index', ['status' => 'approved']) }}" 
+           class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors {{ request('status') === 'approved' ? 'bg-[#1e2a5e] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+          Approved
+        </a>
+        <a href="{{ route('att-records.index', ['status' => 'rejected']) }}" 
+           class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors {{ request('status') === 'rejected' ? 'bg-[#1e2a5e] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+          Rejected
+        </a>
+        <a href="{{ route('att-records.index', ['status' => 'all']) }}" 
+           class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors {{ request('status') === 'all' || request('status') === '' ? 'bg-[#1e2a5e] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+          All
+        </a>
+      </div>
+
+      <input type="text" name="search" value="{{ request('search') }}" placeholder="Search employee..." class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1e2a5e]/40">
+      <button type="submit" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors">
+        Filter
+      </button>
+    </form>
+
+    <!-- HR Action Button -->
+    <a href="{{ route('att-records.create') }}" class="bg-[#1e2a5e] hover:bg-[#1e2a5e]/90 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors flex items-center gap-1.5 shadow-sm">
+      <span>+</span> File ATT Form
+    </a>
+  </div>
 
   {{-- Table --}}
-  <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+  <div class="bg-white border border-[#1e2a5e]/30 rounded-2xl overflow-hidden shadow-sm">
     <table class="w-full">
       <thead>
-        <tr class="border-b border-white/10 bg-white/3">
-          <th class="text-left px-6 py-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Employee</th>
-          <th class="text-left px-6 py-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Destination</th>
-          <th class="text-left px-6 py-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Travel Date</th>
-          <th class="text-left px-6 py-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Filed</th>
-          <th class="text-left px-6 py-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Status</th>
-          <th class="text-right px-6 py-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Action</th>
+        <tr class="border-b border-slate-200 bg-slate-50">
+          <th class="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Employee</th>
+          <th class="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Destination / Purpose</th>
+          <th class="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Travel Date</th>
+          <th class="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Filed</th>
+          <th class="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+          <th class="text-right px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Action</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-white/5">
+      <tbody class="divide-y divide-slate-100">
         @forelse($records as $record)
-          <tr class="hover:bg-white/3 transition-colors">
+          <tr class="hover:bg-slate-50 transition-colors">
             <td class="px-6 py-4">
-              <p class="text-white text-sm font-medium">{{ $record->employee?->full_name ?? 'Unknown' }}</p>
-              <p class="text-white/30 text-xs">{{ $record->employee?->position }}</p>
+              <p class="text-slate-900 text-sm font-medium">
+                {{ $record->employee?->last_name }}, {{ $record->employee?->first_name }}
+              </p>
+              <p class="text-slate-400 text-xs">{{ $record->employee?->position }}</p>
             </td>
             <td class="px-6 py-4">
-              <p class="text-white text-sm">{{ $record->destination }}</p>
-              <p class="text-white/30 text-xs truncate max-w-xs">{{ $record->purpose }}</p>
+              <p class="text-slate-900 text-sm font-medium">{{ $record->destination }}</p>
+              <p class="text-slate-400 text-xs truncate max-w-xs">{{ $record->purpose }}</p>
             </td>
             <td class="px-6 py-4">
-              <p class="text-white text-sm">{{ \Carbon\Carbon::parse($record->travel_date)->format('M d, Y') }}</p>
-              <p class="text-white/30 text-xs">to {{ \Carbon\Carbon::parse($record->return_date)->format('M d, Y') }}</p>
+              <p class="text-slate-900 text-sm">
+                {{ \Carbon\Carbon::parse($record->departure_date ?? $record->travel_date)->format('M d, Y') }}
+              </p>
+              <p class="text-slate-400 text-xs">
+                to {{ \Carbon\Carbon::parse($record->arrival_date ?? $record->return_date)->format('M d, Y') }}
+              </p>
             </td>
             <td class="px-6 py-4">
-              <p class="text-white/60 text-sm">{{ \Carbon\Carbon::parse($record->filed_at)->format('M d, Y') }}</p>
+              <p class="text-slate-600 text-sm">
+                {{ $record->filed_at ? \Carbon\Carbon::parse($record->filed_at)->format('M d, Y') : '—' }}
+              </p>
             </td>
             <td class="px-6 py-4">
               @php
                 $statusColors = [
-                  'pending'  => 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20',
-                  'approved' => 'bg-[#4CAF82]/15 text-[#4CAF82] border-[#4CAF82]/20',
-                  'rejected' => 'bg-red-500/15 text-red-400 border-red-500/20',
+                  'pending'  => 'bg-amber-50 text-amber-600 border-amber-200',
+                  'approved' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                  'rejected' => 'bg-red-50 text-red-600 border-red-200',
                 ];
               @endphp
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-full border
-                           {{ $statusColors[$record->status] ?? '' }}">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full border {{ $statusColors[$record->status] ?? '' }}">
                 {{ ucfirst($record->status) }}
               </span>
             </td>
             <td class="px-6 py-4 text-right">
-              <a href="{{ route('att-records.show', $record) }}"
-                 class="text-[#4CAF82] hover:underline text-sm font-medium">
+              <a href="{{ route('att-records.show', $record) }}" class="text-emerald-600 hover:underline text-sm font-medium">
                 Review →
               </a>
             </td>
           </tr>
         @empty
           <tr>
-            <td colspan="6" class="px-6 py-12 text-center text-white/30 text-sm">
+            <td colspan="6" class="px-6 py-12 text-center text-slate-400 text-sm">
               No ATT records found.
             </td>
           </tr>
@@ -109,7 +124,7 @@
       </tbody>
     </table>
     @if($records->hasPages())
-      <div class="px-6 py-4 border-t border-white/10">{{ $records->links() }}</div>
+      <div class="px-6 py-4 border-t border-slate-200">{{ $records->links() }}</div>
     @endif
   </div>
 </div>

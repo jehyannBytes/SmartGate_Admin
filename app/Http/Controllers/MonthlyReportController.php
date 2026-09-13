@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\MonthlyReport;
 use App\Models\AttendanceLog;
 use App\Models\Employee;
+use App\Models\AttRecord;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -129,8 +131,8 @@ class MonthlyReportController extends Controller
 
     private function buildReportData(MonthlyReport $report): array
     {
-        $year       = $report->year;
-        $month      = $report->month;
+        $year = $report->year;
+        $month = $report->month;
         $department = $report->department !== 'All Departments' ? $report->department : null;
 
         $employeeQuery = Employee::where('is_active', true);
@@ -139,52 +141,109 @@ class MonthlyReportController extends Controller
         }
         $employees = $employeeQuery->orderBy('last_name')->get();
 
+        $daysInMonth = Carbon::create($year, $month)->daysInMonth;
         $reportData = [];
+
         foreach ($employees as $employee) {
             $logs = AttendanceLog::where('employee_id', $employee->employee_id)
                 ->whereYear('scanned_at', $year)
                 ->whereMonth('scanned_at', $month)
-                ->orderBy('scanned_at')
                 ->get();
 
-            $daysPresent = $logs->where('log_type', 'Morning In')->count();
-            $lates = $logs->where('log_type', 'Morning In')
-                ->filter(fn($l) => Carbon::parse($l->scanned_at)->format('H:i') > '08:00')
-                ->count();
+            // Fetch all approved ATT records for this employee overlapping this month
+            $approvedAtts = AttRecord::where('employee_id', $employee->employee_id)
+                ->where('status', 'approved')
+                ->where(function ($q) use ($year, $month) {
+                    $q->whereYear('departure_date', $year)->whereMonth('departure_date', $month)
+                      ->orWhereYear('arrival_date', $year)->whereMonth('arrival_date', $month);
+                })->get();
 
-            $dailyLogs = $logs->groupBy(fn($l) => Carbon::parse($l->scanned_at)->format('Y-m-d'))
-                ->map(function ($dayLogs, $date) {
-                    $find = fn($type) => $dayLogs->firstWhere('log_type', $type);
+            $dailyLogs = [];
+            $totalUndertimeHours = 0;
+            $totalUndertimeMinutes = 0;
 
-                    $morningIn    = $find('Morning In');
-                    $morningOut   = $find('Morning Out');
-                    $afternoonIn  = $find('Afternoon In');
-                    $afternoonOut = $find('Afternoon Out');
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $dateObj = Carbon::create($year, $month, $day);
+                $dayOfWeek = strtoupper($dateObj->format('l'));
+                $currentDateStr = $dateObj->format('Y-m-d');
 
-                    return [
-                        'date'          => Carbon::parse($date)->format('M d, Y (D)'),
-                        'morning_in'    => $morningIn ? Carbon::parse($morningIn->scanned_at)->format('h:i A') : '-',
-                        'morning_out'   => $morningOut ? Carbon::parse($morningOut->scanned_at)->format('h:i A') : '-',
-                        'afternoon_in'  => $afternoonIn ? Carbon::parse($afternoonIn->scanned_at)->format('h:i A') : '-',
-                        'afternoon_out' => $afternoonOut ? Carbon::parse($afternoonOut->scanned_at)->format('h:i A') : '-',
-                        'is_late'       => $morningIn && Carbon::parse($morningIn->scanned_at)->format('H:i') > '08:00',
+                if ($dateObj->isWeekend()) {
+                    $dailyLogs[$day] = [
+                        'day' => $day,
+                        'is_weekend' => true,
+                        'label' => $dayOfWeek,
                     ];
-                })
-                ->values();
+                    continue;
+                }
+
+                // Check for approved ATT record
+                $activeAtt = $approvedAtts->first(function ($att) use ($currentDateStr) {
+                    return $currentDateStr >= $att->departure_date->format('Y-m-d') 
+                        && $currentDateStr <= $att->arrival_date->format('Y-m-d');
+                });
+
+                if ($activeAtt) {
+                    $dailyLogs[$day] = [
+                        'day' => $day,
+                        'is_weekend' => false,
+                        'is_att' => true,
+                        'label' => 'ATT',
+                        'att_number' => $activeAtt->att_number,
+                        'document_url' => $activeAtt->image_url,
+                        'morning_in' => 'ATT',
+                        'morning_out' => 'ATT',
+                        'afternoon_in' => 'ATT',
+                        'afternoon_out' => 'ATT',
+                        'undertime_hours' => '',
+                        'undertime_minutes' => '',
+                    ];
+                    continue;
+                }
+
+                $dayLogs = $logs->filter(fn($l) => Carbon::parse($l->scanned_at)->day == $day);
+
+                $mIn  = $dayLogs->firstWhere('log_type', 'Morning In');
+                $mOut = $dayLogs->firstWhere('log_type', 'Morning Out');
+                $aIn  = $dayLogs->firstWhere('log_type', 'Afternoon In');
+                $aOut = $dayLogs->firstWhere('log_type', 'Afternoon Out');
+
+                // Calculate undertime minutes (Arriving after 08:00 AM)
+                $lateMinutes = 0;
+                if ($mIn && Carbon::parse($mIn->scanned_at)->format('H:i') > '08:00') {
+                    $lateMinutes = Carbon::parse($mIn->scanned_at)->diffInMinutes(Carbon::parse($dateObj->format('Y-m-d') . ' 08:00:00'));
+                }
+
+                $hours = floor($lateMinutes / 60);
+                $mins = $lateMinutes % 60;
+
+                $totalUndertimeHours += $hours;
+                $totalUndertimeMinutes += $mins;
+
+                $dailyLogs[$day] = [
+                    'day' => $day,
+                    'is_weekend' => false,
+                    'is_att' => false,
+                    'morning_in' => $mIn ? Carbon::parse($mIn->scanned_at)->format('h:i') : '',
+                    'morning_out' => $mOut ? Carbon::parse($mOut->scanned_at)->format('h:i') : '',
+                    'afternoon_in' => $aIn ? Carbon::parse($aIn->scanned_at)->format('h:i') : '',
+                    'afternoon_out' => $aOut ? Carbon::parse($aOut->scanned_at)->format('h:i') : '',
+                    'undertime_hours' => $hours > 0 ? $hours : '',
+                    'undertime_minutes' => $mins > 0 ? $mins : '',
+                ];
+            }
+
+            // Adjust overflow minutes to hours
+            $totalUndertimeHours += floor($totalUndertimeMinutes / 60);
+            $totalUndertimeMinutes = $totalUndertimeMinutes % 60;
 
             $reportData[] = [
-                'employee_code'   => $employee->employee_code,
-                'name'            => $employee->last_name . ', ' . $employee->first_name . ' ' . ($employee->middle_name ? substr($employee->middle_name, 0, 1).'.' : ''),
-                'position'        => $employee->position,
-                'department'      => $employee->department,
-                'employment_type' => $employee->employment_type,
-                'days_present'    => $daysPresent,
-                'lates'           => $lates,
-                'morning_in'      => $logs->where('log_type', 'Morning In')->count(),
-                'morning_out'     => $logs->where('log_type', 'Morning Out')->count(),
-                'afternoon_in'    => $logs->where('log_type', 'Afternoon In')->count(),
-                'afternoon_out'   => $logs->where('log_type', 'Afternoon Out')->count(),
-                'daily_logs'      => $dailyLogs,
+                'employee_code' => $employee->employee_code,
+                'name' => strtoupper($employee->first_name . ' ' . ($employee->middle_name ? substr($employee->middle_name, 0, 1) . '. ' : '') . $employee->last_name),
+                'position' => $employee->position,
+                'department' => $employee->department,
+                'daily_logs' => $dailyLogs,
+                'total_undertime_hours' => $totalUndertimeHours ?: '',
+                'total_undertime_minutes' => $totalUndertimeMinutes ?: '',
             ];
         }
 

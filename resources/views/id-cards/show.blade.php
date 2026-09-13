@@ -33,28 +33,38 @@
         <div id="card-front"
              class="bg-gradient-to-b from-[#0a1f18] to-[#04120c] border border-[#4CAF82]/30 rounded-3xl
                     w-[260px] h-[420px] p-5 flex flex-col shadow-2xl relative overflow-hidden">
-<div class="flex items-center gap-2">
-    @if(file_exists(public_path('images/logo.png')))
-        <img src="{{ asset('images/logo.png') }}"
-             class="w-10 h-10 object-contain flex-shrink-0"/>
-    @endif
+            <div class="flex items-center gap-2">
+                @if(file_exists(public_path('images/logo.png')))
+                    <img src="{{ asset('images/logo.png') }}"
+                         class="w-10 h-10 object-contain flex-shrink-0"/>
+                @endif
 
-    <div class="text-left">
-        <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
-            Pangasinan State University
-        </p>
-        <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
-            Alaminos City Campus
-        </p>
-        <p class="text-[#4CAF82] text-[8px] font-bold tracking-widest mt-1">
-            SMARTGATE ACC
-        </p>
-    </div>
-</div>
+                <div class="text-left">
+                    <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
+                        Pangasinan State University
+                    </p>
+                    <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
+                        Alaminos City Campus
+                    </p>
+                    <p class="text-[#4CAF82] text-[8px] font-bold tracking-widest mt-1">
+                        SMARTGATE ACC
+                    </p>
+                </div>
+            </div>
+
             <div class="w-[150px] h-[170px] mx-auto mt-3 mb-3 rounded-xl border-2 border-[#4CAF82]
                         bg-white/5 overflow-hidden flex items-center justify-center shrink-0">
                 @if($employee->photo_url)
-                    <img src="{{ asset($employee->photo_url) }}" alt="" class="w-full h-full object-cover"/>
+                    @php
+                        if (Str::startsWith($employee->photo_url, ['http://', 'https://'])) {
+                            $photoSrc = $employee->photo_url;
+                        } elseif (Str::startsWith($employee->photo_url, 'storage/')) {
+                            $photoSrc = asset($employee->photo_url);
+                        } else {
+                            $photoSrc = asset(Storage::url($employee->photo_url));
+                        }
+                    @endphp
+                    <img src="{{ $photoSrc }}" alt="Employee Photo" class="w-full h-full object-cover"/>
                 @else
                     <svg class="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
@@ -77,24 +87,24 @@
         <div id="card-back"
              class="hidden bg-gradient-to-b from-[#0a1f18] to-[#04120c] border border-[#4CAF82]/30 rounded-3xl
                     w-[260px] h-[420px] p-5 flex flex-col shadow-2xl relative overflow-hidden">
-<div class="flex items-center gap-2">
-    @if(file_exists(public_path('images/logo.png')))
-        <img src="{{ asset('images/logo.png') }}"
-             class="w-10 h-10 object-contain flex-shrink-0"/>
-    @endif
+            <div class="flex items-center gap-2">
+                @if(file_exists(public_path('images/logo.png')))
+                    <img src="{{ asset('images/logo.png') }}"
+                         class="w-10 h-10 object-contain flex-shrink-0"/>
+                @endif
 
-    <div class="text-left">
-        <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
-            Pangasinan State University
-        </p>
-        <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
-            Alaminos City Campus
-        </p>
-        <p class="text-[#4CAF82] text-[8px] font-bold tracking-widest mt-1">
-            SMARTGATE ACC
-        </p>
-    </div>
-</div>
+                <div class="text-left">
+                    <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
+                        Pangasinan State University
+                    </p>
+                    <p class="text-white text-[9px] font-bold uppercase tracking-wide leading-tight">
+                        Alaminos City Campus
+                    </p>
+                    <p class="text-[#4CAF82] text-[8px] font-bold tracking-widest mt-1">
+                        SMARTGATE ACC
+                    </p>
+                </div>
+            </div>
 
             <p class="text-white/50 text-center text-[10px] uppercase tracking-widest mt-10">Scan for Attendance</p>
 
